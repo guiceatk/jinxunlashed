@@ -1,0 +1,17 @@
+{
+  "name": "@jinxunlashed/browser-engine",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "playwright": "^1.45.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4"
+  }
+}
