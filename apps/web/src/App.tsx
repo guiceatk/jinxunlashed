@@ -14,7 +14,7 @@ export default function App() {
       {/* Sidebar Navigation */}
       <aside className="w-16 bg-dark-900 border-r border-slate-800/80 flex flex-col items-center py-5 space-y-6">
         <div className="p-2.5 bg-brand-600 rounded-xl shadow-lg shadow-brand-500/30 text-white font-bold text-lg tracking-wider">
-          JX
+          G
         </div>
 
         <nav className="flex-1 flex flex-col space-y-3">
@@ -65,7 +65,7 @@ export default function App() {
         {/* Header Bar */}
         <header className="h-14 border-b border-slate-800/80 glass-panel px-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <h1 className="font-bold text-slate-100 text-sm tracking-wide">JINXUNLASHED</h1>
+            <h1 className="font-bold text-slate-100 text-sm tracking-wide">GUICES.AI</h1>
             <span className="text-xs text-slate-500">|</span>
             <span className="text-xs text-slate-400 font-medium">Async Creative-AI OS & Workflow Engine</span>
           </div>

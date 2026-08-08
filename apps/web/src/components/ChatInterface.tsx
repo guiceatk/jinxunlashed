@@ -13,7 +13,7 @@ export const ChatInterface: React.FC = () => {
     {
       id: '1',
       sender: 'assistant',
-      text: 'Welcome to **JINXUNLASHED**. I am your async creative-AI orchestrator. How can I assist your workflow today?',
+      text: 'Welcome to **Guices.ai**. I am your async creative-AI orchestrator. How can I assist your workflow today?',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);

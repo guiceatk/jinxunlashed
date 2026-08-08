@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "JINXUNLASHED Browser Bridge",
+  "name": "Guices Browser Bridge",
   "version": "1.0.0",
-  "description": "Async multi-site browser orchestration & content automation bridge for JINXUNLASHED.",
+  "description": "Async multi-site browser orchestration & content automation bridge for Guices.",
   "permissions": [
     "activeTab",
     "scripting",
