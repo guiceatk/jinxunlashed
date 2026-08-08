@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "JINXUNLASHED Browser Bridge",
+  "version": "1.0.0",
+  "description": "Async multi-site browser orchestration & content automation bridge for JINXUNLASHED.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "dist/background/index.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["dist/content/index.js"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  }
+}

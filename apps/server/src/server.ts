@@ -1,4 +1,4 @@
-import Fastify from 'fastify';
+import Fastify, { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import cors from '@fastify/cors';
 import websocket from '@fastify/websocket';
 import { WorkflowRunner, WorkflowGraph, StreamEventEnvelope } from '@jinxunlashed/workflow-engine';
@@ -34,7 +34,7 @@ server.register(async (fastify) => {
         const payload = JSON.parse(rawMessage.toString());
         if (payload.action === 'run_workflow' && payload.graph) {
           const graph: WorkflowGraph = payload.graph;
-          
+
           const runner = new WorkflowRunner({
             concurrency: 2,
             maxRetries: 2,
@@ -64,9 +64,7 @@ server.register(async (fastify) => {
               return { status: 'executed', nodeId: node.id };
             });
 
-            socket.send(
-              JSON.stringify({ type: 'workflow_complete', result })
-            );
+            socket.send(JSON.stringify({ type: 'workflow_complete', result }));
           } finally {
             await browserController.closeSession(sessionId);
           }
@@ -87,23 +85,42 @@ server.register(async (fastify) => {
   });
 });
 
-// SSE Fallback Endpoint
-server.get('/api/stream', (request, reply) => {
-  reply.raw.setHeader('Content-Type', 'text/event-stream');
-  reply.raw.setHeader('Cache-Control', 'no-cache');
-  reply.raw.setHeader('Connection', 'keep-alive');
-  reply.raw.setHeader('Access-Control-Allow-Origin', '*');
+// Production-Grade Cloudflare / SSE Streaming Route
+export async function setupStreamingRoutes(fastifyServer: FastifyInstance) {
+  fastifyServer.get(
+    '/v1/stream/runs/:runId',
+    (req: FastifyRequest<{ Params: { runId: string } }>, reply: FastifyReply) => {
+      const { runId } = req.params;
 
-  reply.raw.write(`data: ${JSON.stringify({ type: 'connected', timestamp: new Date().toISOString() })}\n\n`);
+      // Headers to bypass Cloudflare SSE buffering and prevent QUIC degradation
+      reply.raw.setHeader('Content-Type', 'text/event-stream');
+      reply.raw.setHeader('Cache-Control', 'no-cache, no-transform');
+      reply.raw.setHeader('Connection', 'keep-alive');
+      reply.raw.setHeader('X-Accel-Buffering', 'no');
+      reply.raw.setHeader('Access-Control-Allow-Origin', '*');
 
-  const sseInterval = setInterval(() => {
-    reply.raw.write(`data: ${JSON.stringify({ type: 'ping', timestamp: new Date().toISOString() })}\n\n`);
-  }, 15000);
+      // Initial connection frame
+      reply.raw.write(
+        `data: ${JSON.stringify({ event: 'connected', runId, timestamp: new Date().toISOString() })}\n\n`
+      );
 
-  request.raw.on('close', () => {
-    clearInterval(sseInterval);
-  });
-});
+      // Periodic Heartbeat to maintain connection
+      const keepAlive = setInterval(() => {
+        reply.raw.write(`: heartbeat ${new Date().toISOString()}\n\n`);
+      }, 15000);
+
+      const cleanup = () => {
+        clearInterval(keepAlive);
+        req.raw.removeListener('close', cleanup);
+        reply.raw.end();
+      };
+
+      req.raw.on('close', cleanup);
+    }
+  );
+}
+
+await setupStreamingRoutes(server);
 
 // Health check endpoint
 server.get('/api/health', async () => {
